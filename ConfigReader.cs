@@ -20,7 +20,6 @@ namespace Program
                 "AlphaVantageAPIKEY",
                 "CheckInterval",
                 "SMTPserver",
-                "SMTPname",
                 "SMTPusername",
                 "SMTPpassword",
                 "SMTPportTLS",
