@@ -39,7 +39,7 @@ O programa deve ficar continuamente monitorando a cotação do ativo enquanto es
 
 Em outras palavras, dada a cotação de PETR4 abaixo.
 
-![Desafio Broker]("./doc imgs/desafiobroker.JPG")
+![Desafio Broker](https://user-images.githubusercontent.com/15125899/184268742-d34f7b66-373d-4535-a1f0-32d61bc44cd1.JPG)
 
 Toda vez que o preço for maior que linha-azul, um e-mail deve ser disparado aconselhando a venda.
 
