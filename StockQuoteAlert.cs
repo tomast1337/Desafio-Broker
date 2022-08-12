@@ -35,7 +35,7 @@ namespace Program
                     //Get the response body
                     JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                     //Get the last price
-                    var FirstEntry = body["Time Series (60min)"].First;
+                    var FirstEntry = body["Time Series (5min)"].First;
                     // Get the last price                    
                     var currentPrice = float.Parse(FirstEntry.First["4. close"].ToString());
                     //Check if the last price is lower than the buy price
