@@ -37,13 +37,34 @@ A escolha da API de cotação é livre.
 
 O programa deve ficar continuamente monitorando a cotação do ativo enquanto estiver rodando.
 
-
-
 Em outras palavras, dada a cotação de PETR4 abaixo.
 
-![desafiobroker]("./doc imgs/desafiobroker.JPG")
+![Desafio Broker]("./doc imgs/desafiobroker.JPG")
 
 Toda vez que o preço for maior que linha-azul, um e-mail deve ser disparado aconselhando a venda.
 
 Toda vez que o preço for menor que linha-vermelha, um e-mail deve ser disparado aconselhando a compra.
 
+# Como rodar o projeto;
+
+primeiramente e necessario possuit os pacotes do dotnet instalados no mue caso estou no Arch linux, então a instalação do dotnet core foi feita com o comando `sudo pacman -S dotnet-host dotnet-runtime dotnet-sdk dotnet-targeting-pack`.
+
+Apos isso, é necessário criar um arquivo de configuração `config.json`, no diretório raiz do projeto ou na no mesmo diretório do executável, com as seguintes informações:
+
+```json
+{
+    "AlphaVantageAPIKEY":"************",
+    "CheckInterval": "1",
+    "SMTPserver":"smtp.yandex.com",
+    "SMTPusername":"**************@yandex.ru",
+    "SMTPpassword":"**************",
+    "SMTPportTLS": "587",
+    "SMTPportSSL": "465",
+    "DestinationEmail": "destino@gmail.com"
+}
+```
+No meu caso usei o Yandex que ainda permite esse tipo de autenticação, mas se quiser usar outro servidor, basta alterar o SMTPserver, SMTPusername, SMTPpassword, SMTPportTLS, SMTPportSSL e DestinationEmail.
+
+O campo `DestinationEmail` pode receber vários e-mails separados por vírgula.
+
+A API de cotação usada foi a Alpha Vantage.
