@@ -1,19 +1,19 @@
 namespace Program
 {
     using System.Net.Http;
-    using System.Net.Http.Headers;
-    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     class StockQuoteAlertService
     {
-
-        internal void Alert(string ativo, float precoVenda, float precoCompra)
+        internal void Alert(string ativo, float sellPrice, float buyPrice)
         {
+            if (ativo is null)
+                throw new ArgumentNullException($"{nameof(ativo)} não pode ser nulo");
 
-            //Check interval
-            var checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]);
-            //SMTP server
+
+
+            //Alpha Vantage
+            var httpClient = new HttpClient();
             var apiKey = ConfigReader.ReadConfig()["AlphaVantageAPIKEY"];
             var apiUrl = "https://www.alphavantage.co/" +
                             "query?function=TIME_SERIES_INTRADAY" +
@@ -21,45 +21,45 @@ namespace Program
                             "&interval=60min" +
                             $"&apikey={apiKey}";
 
-            Console.WriteLine("Api url: {0}", apiUrl);
+            int checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]) * 1000 * 60;
 
-            //Http client
-            var client = new HttpClient();
+            var emailServices = new EmailServices();
+            string DestinationEmail = ConfigReader.ReadConfig()["DestinationEmail"];
 
-            int intCheckInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]) * 1000 * 60;
-
-            // Run loop
             while (true)
             {
                 try
                 {
                     //Get the response from the api
-                    var response = client.GetAsync(apiUrl).Result;
+                    var response = httpClient.GetAsync(apiUrl).Result;
                     //Get the response body
                     JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                     //Get the last price
                     var FirstEntry = body["Time Series (60min)"].First;
                     // Get the last price                    
-                    var lastPrice = float.Parse(FirstEntry.First["4. close"].ToString());
+                    var currentPrice = float.Parse(FirstEntry.First["4. close"].ToString());
                     //Check if the last price is lower than the buy price
-                    if (lastPrice < precoCompra)
+                    if (currentPrice < buyPrice)
                     {
-                        Console.WriteLine($"Alerta de compra \n O ativo {ativo} está abaixo do preço de compra ({precoCompra})");
+                        var message = $"Alerta de compra \n O ativo {ativo} está abaixo do preço de compra ({buyPrice}) \n Preço atual: {currentPrice}";
+                        Console.WriteLine(message);
+                        emailServices.SendEmail(DestinationEmail, $"Alerta de compra - {ativo}", message);
                     }
                     //If the last price is higher than the sell price, send an email
-                    if (lastPrice > precoVenda)
+                    if (currentPrice > sellPrice)
                     {
-                        Console.WriteLine($"Alerta de venda \n O ativo {ativo} está acima do preço de venda ({precoVenda})");
+                        var message = $"Alerta de venda \n O ativo {ativo} está acima do preço de venda ({sellPrice}) \n Preço atual: {currentPrice}";
+                        Console.WriteLine(message);
+                        emailServices.SendEmail(DestinationEmail, $"Alerta de venda - {ativo}", message);
                     }
-                    Console.WriteLine($"Preço atual: {lastPrice}");
-                    System.Threading.Thread.Sleep(intCheckInterval);
+                    Console.WriteLine($"Preço atual: {currentPrice}");
+                    System.Threading.Thread.Sleep(checkInterval);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Erro ao obter preço atual");
                     Console.WriteLine(e.Message);
                 }
-                //30 sec
                 System.Threading.Thread.Sleep(30000);
 
             }
@@ -67,20 +67,3 @@ namespace Program
         }
     }
 }
-
-
-/*If the last price is lower than the buy price, send an email
-if (lastPrice < precoCompra)
-{
-    Console.WriteLine("Alerta de compra", $"O ativo {ativo} está abaixo do preço de compra ({precoCompra})");
-}
-//If the last price is higher than the sell price, send an email
-if (lastPrice > precoVenda)
-{
-    Console.WriteLine("Alerta de venda", $"O ativo {ativo} está acima do preço de venda ({precoVenda})");
-}
-Console.WriteLine($"Preço atual: {lastPrice}");
-//Wait 1 minute
-System.Threading.Thread.Sleep(intCheckInterval);
-
-*/
