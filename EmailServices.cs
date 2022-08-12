@@ -54,6 +54,7 @@ namespace Program
                 smtpClient.Credentials = new NetworkCredential(SMTPusername, SMTPpassword);
                 smtpClient.UseDefaultCredentials = false;
                 smtpClient.Send(mail);
+                Console.WriteLine("E-mail enviado com sucesso");
             }
             catch (Exception ex)
             {
