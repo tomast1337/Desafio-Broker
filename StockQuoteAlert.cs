@@ -18,7 +18,7 @@ namespace Program
             var apiUrl = "https://www.alphavantage.co/" +
                             "query?function=TIME_SERIES_INTRADAY" +
                             $"&symbol={ativo}" +
-                            "&interval=60min" +
+                            "&interval=5min" +
                             $"&apikey={apiKey}";
 
             int checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]) * 1000 * 60;
