@@ -1,0 +1,10 @@
+{
+    "AlphaVantageAPIKEY":"",
+    "CheckInterval": "1",
+    "SMTPserver":"",
+    "SMTPusername":"",
+    "SMTPpassword":"",
+    "SMTPportTLS": "587",
+    "SMTPportSSL": "465",
+    "DestinationEmail": ""
+}
