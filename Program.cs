@@ -30,26 +30,27 @@ namespace Program
         {
             if (args.Length != 3)
             {
-                Console.WriteLine("Uso: stock-quote-alert.exe <ativo> <preço de venda> <preço de compra>");
+                Console.WriteLine("Uso: \"Desafio Broker.exe\" <ativo> <preço de venda> <preço de compra>");
+                System.Environment.Exit(1);
                 return;
             }
-            string ativo;
-            float precoVenda;
-            float precoCompra;
-            
-            ativo = args[0];
-            precoVenda = float.Parse(args[1]);
-            precoCompra = float.Parse(args[2]);
+            string[] ativo = args[0].Contains(',') ? args[0].Split(',') : new[] { args[0] };
+            float[] precoVenda = args[1].Contains(',') ? args[1].Split(',').Select(x => float.Parse(x)).ToArray() : new[] { float.Parse(args[1]) };
+            float[] precoCompra = args[2].Contains(',') ? args[2].Split(',').Select(x => float.Parse(x)).ToArray() : new[] { float.Parse(args[2]) };
 
             // Ler configurações do arquivo config.json
             ConfigReader.ReadConfig();
-
-            Console.WriteLine("Monitorando {0}", ativo);
-            Console.WriteLine("Preço de venda: {0}", precoVenda);
-            Console.WriteLine("Preço de compra: {0}", precoCompra);
-
-            var alertService = new StockQuoteAlert();
-            alertService.Alert(ativo, precoVenda, precoCompra);
+            StockQuoteAlert alertService;
+            try
+            {
+                alertService = new StockQuoteAlert(ativo, precoVenda, precoCompra);
+                alertService.StockWatch();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Desafio Broker.exe <ativo1>,<ativo2> <preço de venda1>,<preço de venda2> <preço de compra1>,<preço de compra2>");
+            }
         }
     }
 }

@@ -5,62 +5,111 @@ namespace Program
 
     class StockQuoteAlert
     {
-        internal void Alert(string ativo, float sellPrice, float buyPrice)
+        private HttpClient httpClient;
+        private EmailServices emailServices;
+
+        private string[] stocks;
+        private float[] sellPrices;
+        private float[] buyPrices;
+
+        public StockQuoteAlert(string[] stocks, float[] sellPrices, float[] buyPrices)
         {
-            if (ativo is null)
-                throw new ArgumentNullException($"{nameof(ativo)} não pode ser nulo");
+            if (sellPrices.Length != buyPrices.Length || sellPrices.Length != stocks.Length)
+                throw new System.Exception("Quantidade de ativos, preços de venda e preços de compra diferentes");
 
+            this.stocks = stocks;
+            this.sellPrices = sellPrices;
+            this.buyPrices = buyPrices;
 
+            httpClient = new HttpClient();
+            emailServices = new EmailServices();
+        }
 
-            //Alpha Vantage
-            var httpClient = new HttpClient();
+        // get the stock quote from the web service
+        private float GetStockPrice(string ativo)
+        {
             var apiKey = ConfigReader.ReadConfig()["AlphaVantageAPIKEY"];
             var apiUrl = "https://www.alphavantage.co/query" +
-                         "?function=TIME_SERIES_DAILY" +
-                         $"&symbol={ativo}" +
-                         $"&apikey={apiKey}";
-            
+                        "?function=TIME_SERIES_DAILY" +
+                        $"&symbol={ativo}" +
+                        $"&apikey={apiKey}";
 
-            int checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]) * 1000 * 60;
+            float currentPrice = -1;
 
-            var emailServices = new EmailServices();
-            string DestinationEmail = ConfigReader.ReadConfig()["DestinationEmail"];
+            try
+            {
+                //Get the response from the api
+                var response = httpClient.GetAsync(apiUrl).Result;
+                //Get the response body
+                JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                //Get the last price
+                var FirstEntry = body["Time Series (Daily)"].First;
+                // Get the last price                    
+                currentPrice = float.Parse(FirstEntry.First["4. close"].ToString());
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            if (currentPrice == -1)
+                throw new Exception("Não foi possível obter a cotação do ativo");
+
+            return currentPrice;
+        }
+
+        // Watch the a set of stocks and send an email if the price is below the threshold or above the threshold
+        public void StockWatch()
+        {
+            int checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]);
             while (true)
             {
-                try
+                for (int i = 0; i < stocks.Length; i++)
                 {
-                    //Get the response from the api
-                    var response = httpClient.GetAsync(apiUrl).Result;
-                    //Get the response body
-                    JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);                    
-                    //Get the last price
-                    var FirstEntry = body["Time Series (Daily)"].First;
-                    // Get the last price                    
-                    var currentPrice = float.Parse(FirstEntry.First["4. close"].ToString());
-                    //Check if the last price is lower than the buy price
-                    if (currentPrice < buyPrice)
+                    var ativo = stocks[i];
+                    var precoVenda = sellPrices[i];
+                    var precoCompra = buyPrices[i];
+                    float cotacao;
+                    try
                     {
-                        var message = $"Alerta de compra \n O ativo {ativo} está abaixo do preço de compra ({buyPrice}) \n Preço atual: {currentPrice}";
-                        Console.WriteLine(message);
-                        emailServices.SendEmail(DestinationEmail, $"Alerta de compra - {ativo}", message);
+                        cotacao = GetStockPrice(ativo);
+                        Alert(ativo, precoVenda, precoCompra, cotacao);
                     }
-                    //If the last price is higher than the sell price, send an email
-                    if (currentPrice > sellPrice)
+                    catch (System.Exception e)
                     {
-                        var message = $"Alerta de venda \n O ativo {ativo} está acima do preço de venda ({sellPrice}) \n Preço atual: {currentPrice}";
-                        Console.WriteLine(message);
-                        emailServices.SendEmail(DestinationEmail, $"Alerta de venda - {ativo}", message);
+                        Console.WriteLine(e.Message); // GetStockPrice erro or Email erro
+                        continue;
                     }
-                    System.Threading.Thread.Sleep(checkInterval);
+
+                    // 30 second delay between email and
+                    System.Threading.Thread.Sleep(30 * 1000);
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Erro ao obter preço atual");
-                    Console.WriteLine(e.Message);
-                }
-                System.Threading.Thread.Sleep(30000);
+                // Minutes between checks
+                System.Threading.Thread.Sleep(checkInterval * 1000 * 60);
             }
         }
+
+        //Send an email if the stock price is below the buy price or above the sell price
+        private void Alert(string ativo, float sellPrice, float buyPrice, float currentPrice)
+        {
+            String message;
+            if (currentPrice < buyPrice)
+            {
+                message = $"Alerta de compra \nO ativo {ativo} está abaixo do preço de compra ({buyPrice}) \nPreço atual: {currentPrice}";
+                Console.WriteLine(message);
+                emailServices.SendEmail(ConfigReader.ReadConfig()["DestinationEmail"],
+                "Alerta de compra",
+                message);
+            }
+            else if (currentPrice > sellPrice)
+            {
+                message = $"Alerta de venda \nO ativo {ativo} está acima do preço de venda ({sellPrice}) \nPreço atual: {currentPrice}";
+                Console.WriteLine(message);
+                emailServices.SendEmail(ConfigReader.ReadConfig()["DestinationEmail"],
+                "Alerta de venda",
+                message);
+            }
+        }
+
     }
 }
