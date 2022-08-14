@@ -3,7 +3,7 @@ namespace Program
     using System.Net.Http;
     using Newtonsoft.Json.Linq;
 
-    class StockQuoteAlertService
+    class StockQuoteAlert
     {
         internal void Alert(string ativo, float sellPrice, float buyPrice)
         {
@@ -15,11 +15,11 @@ namespace Program
             //Alpha Vantage
             var httpClient = new HttpClient();
             var apiKey = ConfigReader.ReadConfig()["AlphaVantageAPIKEY"];
-            var apiUrl = "https://www.alphavantage.co/" +
-                            "query?function=TIME_SERIES_INTRADAY" +
-                            $"&symbol={ativo}" +
-                            "&interval=5min" +
-                            $"&apikey={apiKey}";
+            var apiUrl = "https://www.alphavantage.co/query" +
+                         "?function=TIME_SERIES_DAILY" +
+                         $"&symbol={ativo}" +
+                         $"&apikey={apiKey}";
+            
 
             int checkInterval = int.Parse(ConfigReader.ReadConfig()["CheckInterval"]) * 1000 * 60;
 
@@ -33,9 +33,9 @@ namespace Program
                     //Get the response from the api
                     var response = httpClient.GetAsync(apiUrl).Result;
                     //Get the response body
-                    JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                    JObject body = JObject.Parse(response.Content.ReadAsStringAsync().Result);                    
                     //Get the last price
-                    var FirstEntry = body["Time Series (5min)"].First;
+                    var FirstEntry = body["Time Series (Daily)"].First;
                     // Get the last price                    
                     var currentPrice = float.Parse(FirstEntry.First["4. close"].ToString());
                     //Check if the last price is lower than the buy price
@@ -52,7 +52,6 @@ namespace Program
                         Console.WriteLine(message);
                         emailServices.SendEmail(DestinationEmail, $"Alerta de venda - {ativo}", message);
                     }
-                    Console.WriteLine($"Preço atual: {currentPrice}");
                     System.Threading.Thread.Sleep(checkInterval);
                 }
                 catch (Exception e)
@@ -61,9 +60,7 @@ namespace Program
                     Console.WriteLine(e.Message);
                 }
                 System.Threading.Thread.Sleep(30000);
-
             }
-
         }
     }
 }

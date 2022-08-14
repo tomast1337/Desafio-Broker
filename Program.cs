@@ -48,7 +48,7 @@ namespace Program
             Console.WriteLine("Preço de venda: {0}", precoVenda);
             Console.WriteLine("Preço de compra: {0}", precoCompra);
 
-            var alertService = new StockQuoteAlertService();
+            var alertService = new StockQuoteAlert();
             alertService.Alert(ativo, precoVenda, precoCompra);
         }
     }
