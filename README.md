@@ -68,6 +68,12 @@ Voce pode criar o arquivo de configuração copiado do arquivo de configuração
 
 No meu caso usei o Yandex que ainda permite esse tipo de autenticação, mas se quiser usar outro servidor, basta alterar o SMTPserver, SMTPusername, SMTPpassword, SMTPportTLS, SMTPportSSL e DestinationEmail.
 
-O campo `DestinationEmail` pode receber vários e-mails separados por vírgula.
+O campo `DestinationEmail` pode receber vários e-mails separados por vírgula. Ex: `email1@gmail.com,email2@yahoo.com.br,email3@yandex.ru`
 
-A API de cotação usada foi a Alpha Vantage.
+A API de cotação usada foi a Alpha Vantage, ela possui um problema que so consigo puxar velas de ativos com 1 dias de atraso, então o único CheckInterval que funciona é a partir de 1 dia.
+
+Eu adicionei uma funcionalidade extra ao programa que é a possibilidade de observar múltiplos ativos ao mesmo tempo da seguinte forma: 
+
+`stock-quote-alert.exe <ativo1>,<ativo2> <preço de venda1>,<preço de venda2> <preço de compra1>,<preço de compra2>`
+
+Essa funcionalidade é síncrona, então uma thread faz tudo.
