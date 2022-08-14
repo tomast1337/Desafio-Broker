@@ -11,7 +11,7 @@ namespace Program
         private readonly string SMTPpassword;
         private readonly string SMTPportTLS;
         private readonly string SMTPportSSL;
-
+        private SmtpClient smtpClient;
         public EmailServices()
         {
             this.SMTPserver = ConfigReader.ReadConfig()["SMTPserver"];
@@ -19,6 +19,12 @@ namespace Program
             this.SMTPpassword = ConfigReader.ReadConfig()["SMTPpassword"];
             this.SMTPportTLS = ConfigReader.ReadConfig()["SMTPportTLS"];
             this.SMTPportSSL = ConfigReader.ReadConfig()["SMTPportSSL"];
+
+            //Login to the SMTP server
+            smtpClient = new SmtpClient(SMTPserver, int.Parse(SMTPportTLS));
+            smtpClient.EnableSsl = true;
+            smtpClient.Credentials = new NetworkCredential(SMTPusername, SMTPpassword);
+            smtpClient.UseDefaultCredentials = false;
         }
 
         public void SendEmail(string destination, string subject, string body)
@@ -39,7 +45,6 @@ namespace Program
                     var tos = destination.Split(',');
                     foreach (var email in tos)
                         mail.To.Add(email);
-
                 }
                 else
 
@@ -49,10 +54,6 @@ namespace Program
                 mail.Body = body;
                 mail.IsBodyHtml = false;
 
-                var smtpClient = new SmtpClient(SMTPserver, int.Parse(SMTPportTLS));
-                smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new NetworkCredential(SMTPusername, SMTPpassword);
-                smtpClient.UseDefaultCredentials = false;
                 smtpClient.Send(mail);
                 Console.WriteLine("E-mail enviado com sucesso");
             }
