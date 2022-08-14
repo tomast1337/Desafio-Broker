@@ -55,7 +55,7 @@ namespace Program
                 mail.IsBodyHtml = false;
 
                 smtpClient.Send(mail);
-                Console.WriteLine("E-mail enviado com sucesso");
+                Console.WriteLine($"E-mail para {destination} enviado com sucesso");
             }
             catch (Exception ex)
             {
