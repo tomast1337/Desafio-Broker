@@ -63,6 +63,9 @@ Apos isso, é necessário criar um arquivo de configuração `config.json`, no d
     "DestinationEmail": "destino@gmail.com"
 }
 ```
+
+Voce pode criar o arquivo de configuração copiado do arquivo de configuração de exemplo com o comando `cp config.example.json config.json`.
+
 No meu caso usei o Yandex que ainda permite esse tipo de autenticação, mas se quiser usar outro servidor, basta alterar o SMTPserver, SMTPusername, SMTPpassword, SMTPportTLS, SMTPportSSL e DestinationEmail.
 
 O campo `DestinationEmail` pode receber vários e-mails separados por vírgula.
