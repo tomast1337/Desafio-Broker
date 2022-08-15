@@ -5,26 +5,26 @@
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-            "name": "Launch with (IBM)",
+            "name": "Launch with (LREN3)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/bin/Debug/net6.0/Desafio Broker.dll",
-            "args": ["IBM","132.54","132.75"],
+            "args": ["LREN3","28.54","35.75"],
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": "Launch with (PBR)",
+            "name": "Launch with (MGLU3.SA)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
 
             "program": "${workspaceFolder}/bin/Debug/net6.0/Desafio Broker.dll",
-            "args": ["PBR","15.54","20.75"],
+            "args": ["MGLU3.SA","3","6"],
             "cwd": "${workspaceFolder}",
 
             "console": "internalConsole",
@@ -44,13 +44,13 @@
             "stopAtEntry": false
         },
         {
-            "name": "Launch with (PETR4.SA, IBM, PBR)",
+            "name": "Launch with (PETR4.SA, MGLU3.SA, PBR)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
 
             "program": "${workspaceFolder}/bin/Debug/net6.0/Desafio Broker.dll",
-            "args": ["PETR4.SA,IBM,PBR","15.54,132.54,132.75" , "20.75,150.54,20.75"],
+            "args": ["PETR4.SA,IBM,PBR","15.54,3,132.75" , "20.75,6,20.75"],
             "cwd": "${workspaceFolder}",
 
             "console": "internalConsole",
